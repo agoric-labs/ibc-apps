@@ -95,7 +95,7 @@ endif
 all: tools build lint test
 
 # The below include contains the tools and runsim targets.
-#include contrib/devtools/Makefile
+include testing/contrib/devtools/Makefile
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -214,6 +214,12 @@ endif
 ###                             e2e interchain test                         ###
 ###############################################################################
 
+agoric-forks:
+	docker build ../../.. -f ../../../Dockerfile.forks -t agoric-forks:local
+
+agoric-local-image:
+	docker build --build-arg BASE_IMAGE=agoric-forks:local . -t pfm:local
+
 local-image:
 	docker build . -t pfm:local
 
@@ -237,10 +243,10 @@ ictest-nonrefundable:
 ###############################################################################
 
 lint:
-	golangci-lint run --out-format=tab
+	golangci-lint run --output.tab.path stdout
 
 lint-fix:
-	golangci-lint run --fix --out-format=tab --issues-exit-code=0
+	golangci-lint run --fix --output.tab.path stdout --issues-exit-code=0
 .PHONY: lint lint-fix
 
 format:

@@ -29,7 +29,7 @@ const (
 
 var (
 	// baseChain is the current version of the chain that will be upgraded from
-	// docker image load -i ../prev_builds/icq-host_7_1_1.tar
+	// docker image load -i ../testing/previous_images/icq-host_7_1_1.tar
 	baseChain = ibc.DockerImage{
 		Repository: "icq-host",
 		Version:    "v7.1.1",
