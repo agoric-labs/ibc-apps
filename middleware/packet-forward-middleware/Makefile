@@ -95,7 +95,10 @@ endif
 all: tools build lint test
 
 # The below include contains the tools and runsim targets.
-#include contrib/devtools/Makefile
+#
+# [AGORIC] Use it directly from its actual location in the repo,
+# even though it is duplicated as a different path in the Dockerfile.
+include testing/contrib/devtools/Makefile
 
 ###############################################################################
 ###                                  Build                                  ###
