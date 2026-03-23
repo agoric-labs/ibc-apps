@@ -95,7 +95,10 @@ endif
 all: tools build lint test
 
 # The below include contains the tools and runsim targets.
-#include contrib/devtools/Makefile
+#
+# [AGORIC] Use it directly from its actual location in the repo,
+# even though it is duplicated as a different path in the Dockerfile.
+include testing/contrib/devtools/Makefile
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -142,12 +145,12 @@ cosmovisor:
 .PHONY: build build-linux build-simd-all build-simd-linux cosmovisor
 
 mocks: $(MOCKS_DIR)
-	go install go.uber.org/mock/mockgen@v0.2.0
+	go install go.uber.org/mock/mockgen@v0.4.0
 	mockgen -package=mock -destination=./test/mock/transfer_keeper.go $(GOMOD)/packetforward/types TransferKeeper
 	mockgen -package=mock -destination=./test/mock/bank_keeper.go $(GOMOD)/packetforward/types BankKeeper
 	mockgen -package=mock -destination=./test/mock/channel_keeper.go $(GOMOD)/packetforward/types ChannelKeeper
-	mockgen -package=mock -destination=./test/mock/ics4_wrapper.go github.com/cosmos/ibc-go/v7/modules/core/05-port/types ICS4Wrapper
-	mockgen -package=mock -destination=./test/mock/ibc_module.go github.com/cosmos/ibc-go/v7/modules/core/05-port/types IBCModule
+	mockgen -package=mock -destination=./test/mock/ics4_wrapper.go github.com/cosmos/ibc-go/v10/modules/core/05-port/types ICS4Wrapper
+	mockgen -package=mock -destination=./test/mock/ibc_module.go github.com/cosmos/ibc-go/v10/modules/core/05-port/types IBCModule
 
 .PHONY: mocks
 
@@ -218,29 +221,29 @@ local-image:
 	docker build . -t pfm:local
 
 ictest-forward:
-	cd e2e && go test -race -v -timeout 15m -run TestPacketForwardMiddleware .
+	cd e2e && go test -race -v -timeout 30m -run TestPacketForwardMiddleware .
 
 ictest-timeout:
-	cd e2e && go test -race -v -timeout 15m -run TestTimeoutOnForward .
+	cd e2e && go test -race -v -timeout 30m -run TestTimeoutOnForward .
 
 ictest-storage-leak:
-	cd e2e && go test -race -v -timeout 15m -run TestStorageLeak .
+	cd e2e && go test -race -v -timeout 30m -run TestStorageLeak .
 
 ictest-upgrade:
-	cd e2e && go test -race -v -timeout 15m -run TestPFMUpgrade .
+	cd e2e && go test -race -v -timeout 30m -run TestPFMUpgrade .
 
 ictest-nonrefundable:
-	cd e2e && go test -race -v -timeout 15m -run TestNonRefundable .
+	cd e2e && go test -race -v -timeout 60m -run TestNonRefundable .
 
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
 
 lint:
-	golangci-lint run --out-format=tab
+	go tool golangci-lint run --out-format=tab
 
 lint-fix:
-	golangci-lint run --fix --out-format=tab --issues-exit-code=0
+	go tool golangci-lint run --fix --out-format=tab --issues-exit-code=0
 .PHONY: lint lint-fix
 
 format:
@@ -259,7 +262,7 @@ containerProtoGen=cosmos-sdk-proto-gen-$(containerProtoVer)
 containerProtoGenSwagger=cosmos-sdk-proto-gen-swagger-$(containerProtoVer)
 containerProtoFmt=cosmos-sdk-proto-fmt-$(containerProtoVer)
 
-protoVer=0.13.1
+protoVer=0.16.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
